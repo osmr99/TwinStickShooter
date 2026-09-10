@@ -38,7 +38,7 @@ public partial class @TS_Inputs: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Aiming"",
-                    ""type"": ""Value"",
+                    ""type"": ""PassThrough"",
                     ""id"": ""c115e2b3-0814-45a4-86a9-cccc9c4a7fbf"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -10,7 +11,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Vector2 moveInput;
     [SerializeField] private Vector2 aimInput;
 
+    [Header("Gamepad Setup")]
+    PlayerInput pInput;
+    [SerializeField] float controllerDeadZone = 0.1f;
+    [SerializeField] float controllerRotateSmooth = 1000;
+
     public bool isDead;
+    public bool isGamepad;
 
     private void Awake()
     {
@@ -38,6 +45,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void OnDeviceChange(PlayerInput ctrl)
+    {
+        isGamepad = ctrl.currentControlScheme.Equals("Gamepad") ? true : false;
+    }
+
     void HandleInputs()
     {
         moveInput = _inputs.Player.Movement.ReadValue<Vector2>();
@@ -52,15 +64,32 @@ public class PlayerController : MonoBehaviour
 
     void HandleRotation()
     {
-        Ray ray = Camera.main.ScreenPointToRay(aimInput);
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-
-        float rayDistance; // from our mouse position to our ground plane
-
-        if (groundPlane.Raycast(ray, out rayDistance))
+        if(isGamepad)
         {
-            Vector3 point = ray.GetPoint(rayDistance);
-            LookAt(point);
+            if(Mathf.Abs(aimInput.x) > controllerDeadZone || Mathf.Abs(aimInput.y) > controllerDeadZone)
+            {
+                Vector3 playerDirection = Vector3.right * aimInput.x
+                    + Vector3.forward * aimInput.y;
+                if(playerDirection.sqrMagnitude > 0)
+                {
+                    Quaternion newRotation = Quaternion.LookRotation(playerDirection, Vector3.up);
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation,
+                        newRotation, controllerRotateSmooth * Time.deltaTime);
+                }
+            }
+        }
+        else
+        {
+            Ray ray = Camera.main.ScreenPointToRay(aimInput);
+            Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+
+            float rayDistance; // from our mouse position to our ground plane
+
+            if (groundPlane.Raycast(ray, out rayDistance))
+            {
+                Vector3 point = ray.GetPoint(rayDistance);
+                LookAt(point);
+            }
         }
     }
 
