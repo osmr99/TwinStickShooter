@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyHealthScript : MonoBehaviour
 {
+    PlayerShootScript playerShootScript;
     [Header("Material Types")]
     [SerializeField] MeshRenderer[] _mRender;
     public Material baseMat;
@@ -18,6 +19,7 @@ public class EnemyHealthScript : MonoBehaviour
 
     private void Start()
     {
+        playerShootScript = GameObject.FindAnyObjectByType<PlayerShootScript>();
         foreach(MeshRenderer m in _mRender)
         {
             m.material = baseMat;
@@ -31,6 +33,10 @@ public class EnemyHealthScript : MonoBehaviour
             Destroy(other.gameObject);
             StartCoroutine(TakeDamage());
         }
+        if (other.gameObject.tag == "LargeBullet")
+        {
+            StartCoroutine(TakeDamage());
+        }
     }
 
     IEnumerator TakeDamage()
@@ -38,6 +44,8 @@ public class EnemyHealthScript : MonoBehaviour
         enemyHealth--;
         if(enemyHealth <= 0)
         {
+            GameManager.Instance._enemiesInPlay--;
+            GameManager.Instance.EnemyKillCount();
             Instantiate(explosionEffect, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
             yield return new WaitForSeconds(0.025f);
             HitStopManager.Instance.DoHitStop(0.3f, 0.4f);
