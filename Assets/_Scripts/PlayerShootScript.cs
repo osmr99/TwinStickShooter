@@ -43,7 +43,7 @@ public class PlayerShootScript : MonoBehaviour
 
     private void Update()
     {
-        if(_inputs.Player.Shoot.IsPressed() && canShoot)
+        if(_inputs.Player.Shoot.IsPressed() && canShoot && Time.timeScale != 0)
             StartCoroutine(PlayerShoot());
 
         if (Time.timeScale == 0)
@@ -61,18 +61,18 @@ public class PlayerShootScript : MonoBehaviour
                 _shot = Instantiate(baseBullet, bulletSpawnPoint.position,
                     bulletSpawnPoint.rotation) as Rigidbody;
                 _shot.AddForce(bulletSpawnPoint.forward * shotForce);
-                SoundManager.Instance.PlaySound3D(audioClips[0], transform.position, 0.4f);
+                SoundManager.Instance.PlaySound3D(audioClips[0], transform.position, 0.3f);
                 break;
             case 2:
                 _shot = Instantiate(largeBullet, bulletSpawnPoint.position,
                     bulletSpawnPoint.rotation) as Rigidbody;
                 _shot.AddForce(bulletSpawnPoint.forward * shotForce * 0.75f);
-                SoundManager.Instance.PlaySound3D(audioClips[1], transform.position, 0.4f);
+                SoundManager.Instance.PlaySound3D(audioClips[1], transform.position, 0.3f);
                 break;
             case 3:
                 float angleStep = totalSpreadAngle / spreadCount - 1;
                 float startAngle = -totalSpreadAngle / 2f;
-                SoundManager.Instance.PlaySound3D(audioClips[2], transform.position, 0.4f);
+                SoundManager.Instance.PlaySound3D(audioClips[2], transform.position, 0.3f);
 
                 for (int i = 0; i < spreadCount; i++)
                 {

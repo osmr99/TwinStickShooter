@@ -7,7 +7,7 @@ using Unity.VisualScripting;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
+    //public static GameManager Instance;
 
     [Header("Spawn System")]
     public GameObject _enemy;
@@ -30,16 +30,18 @@ public class GameManager : MonoBehaviour
     PowerupUI powerupUI;
     PlayerController playerController;
     PlayerShootScript playerShootScript;
-    public float[] timesLeft = {10.15f, 10.15f, 10.15f, 10.15f};
     public GameObject firstButton;
+    float initialValue;
+    float upgrade1, upgrade2, upgrade3, upgrade4;
+    bool b1, b2, b3, b4;
 
     [Header("Audio Clips")]
     public AudioClip[] sounds;
 
     private void Awake()
     {
-        if(Instance == null)
-            Instance = this;
+        //if(Instance == null)
+            //Instance = this;
     }
 
     private void Start()
@@ -48,6 +50,11 @@ public class GameManager : MonoBehaviour
         playerController = FindAnyObjectByType<PlayerController>();
         playerShootScript = FindAnyObjectByType<PlayerShootScript>();
         powerupUI = FindAnyObjectByType<PowerupUI>();
+        initialValue = powerupsDuration + 0.15f;
+        b1 = false;
+        b2 = false;
+        b3 = false;
+        b4 = false;
     }
 
     public void SpawnEnemy()
@@ -82,7 +89,7 @@ public class GameManager : MonoBehaviour
 
     public void CloseUpgradePanel()
     {
-        Time.timeScale = 1.0f;
+        Time.timeScale = 1;
         upgradePanel.SetActive(false);
     }    
 
@@ -94,7 +101,7 @@ public class GameManager : MonoBehaviour
 
     public void UnpauseGame()
     {
-        Time.timeScale = 1.0f;
+        Time.timeScale = 1;
         pausePanel.SetActive(false);
     }
 
@@ -103,40 +110,36 @@ public class GameManager : MonoBehaviour
         switch (choice)
         {
             case 1:
-                timesLeft[0] = 10.15f;
-                playerController.moveSpeed += 4;
+                playerController.moveSpeed += 2;
                 RandomSFX();
-                StartCoroutine(UpgradeOne());
+                b1 = true;
+                upgrade1 = powerupsDuration + 0.15f;
                 powerupUI.AddUI(choice);
                 break;
             case 2:
-                timesLeft[1] = 10.15f;
                 playerShootScript.shotID = 2;
                 RandomSFX();
-                StopCoroutine(UpgradeTwo());
-                StopCoroutine(UpgradeThree());
-                StartCoroutine(UpgradeTwo());
+                b2 = true;
+                upgrade2 = powerupsDuration + 0.15f;
                 powerupUI.AddUI(choice);
                 break;
             case 3:
-                timesLeft[2] = 10.15f;
                 playerShootScript.shotID = 3;
                 RandomSFX();
-                StopCoroutine(UpgradeTwo());
-                StopCoroutine(UpgradeThree());
-                StartCoroutine(UpgradeThree());
+                b3 = true;
+                upgrade3 = powerupsDuration + 0.15f;
                 powerupUI.AddUI(choice);
                 break;
             case 4:
-                timesLeft[3] = 10.15f;
-                playerShootScript.shotForce += 700;
+                playerShootScript.shotForce += 350;
                 RandomSFX();
-                StartCoroutine(UpgradeFour());
+                b4 = true;
+                upgrade4 = powerupsDuration + 0.15f;
                 powerupUI.AddUI(choice);
                 break;
             case 5:
                 playerShootScript.spreadCount += spreadCountIncrease;
-                SoundManager.Instance.PlaySound3D(sounds[5], playerController.transform.position, 0.4f);
+                SoundManager.Instance.PlaySound3D(sounds[5], playerController.transform.position, 0.3f);
                 break;
             case 6:
                 if(playerController.currentHealth == playerController.maxHealth)
@@ -161,115 +164,75 @@ public class GameManager : MonoBehaviour
     void RandomSFX()
     {
         int randNum = Random.Range(1, 5);
-        Debug.Log(randNum);
         float vol = 0;
         switch (randNum)
         {
             case 1:
-                vol = 0.35f;
+                vol = 0.25f;
                 break;
             case 2:
-                vol = 0.225f;
+                vol = 0.125f;
                 break;
             case 3:
-                vol = 0.3f;
+                vol = 0.2f;
                 break;
             case 4:
-                vol = 0.25f;
+                vol = 0.15f;
                 break;
         }
         SoundManager.Instance.PlaySound3D(sounds[randNum], playerController.transform.position, vol);
     }
 
-    IEnumerator UpgradeOne()
+    private void FixedUpdate()
     {
-        if(Time.timeScale != 0)
+        if(b1)
         {
-            yield return new WaitForSecondsRealtime(0.1f);
-            timesLeft[0] -= 0.1f;
-            if(timesLeft[0] > 0)
+            upgrade1 -= Time.deltaTime;
+            if(upgrade1 < 0)
             {
-                StartCoroutine(UpgradeOne());
-            }
-            else
-            {
-                timesLeft[0] = 10.15f;
-                playerController.moveSpeed -= 4;
+                b1 = false;
             }
         }
-        else
-        {
-            yield return new WaitForSecondsRealtime(0.01f);
-            StartCoroutine(UpgradeOne());
-        }
-    }
 
-    IEnumerator UpgradeTwo()
-    {
-        if (Time.timeScale != 0)
+        if (b2)
         {
-            yield return new WaitForSecondsRealtime(0.1f);
-            timesLeft[1] -= 0.1f;
-            if (timesLeft[1] > 0)
+            upgrade2 -= Time.deltaTime;
+            if (upgrade2 < 0)
             {
-                StartCoroutine(UpgradeTwo());
-            }
-            else
-            {
-                timesLeft[1] = 10.15f;
                 playerShootScript.shotID = 1;
+                b2 = false;
             }
         }
-        else
-        {
-            yield return new WaitForSecondsRealtime(0.01f);
-            StartCoroutine(UpgradeTwo());
-        }
-    }
 
-    IEnumerator UpgradeThree()
-    {
-        if (Time.timeScale != 0)
+        if (b3)
         {
-            yield return new WaitForSecondsRealtime(0.1f);
-            timesLeft[2] -= 0.1f;
-            if (timesLeft[2] > 0)
+            upgrade3 -= Time.deltaTime;
+            if (upgrade3 < 0)
             {
-                StartCoroutine(UpgradeThree());
-            }
-            else
-            {
-                timesLeft[2] = 10.15f;
                 playerShootScript.shotID = 1;
+                b3 = false;
             }
         }
-        else
-        {
-            yield return new WaitForSecondsRealtime(0.01f);
-            StartCoroutine(UpgradeThree());
-        }
-    }
 
-    IEnumerator UpgradeFour()
-    {
-        if (Time.timeScale != 0)
+        if (b4)
         {
-            yield return new WaitForSecondsRealtime(0.1f);
-            timesLeft[1] -= 0.1f;
-            if (timesLeft[1] > 0)
+            upgrade4 -= Time.deltaTime;
+            if (upgrade4 < 0)
             {
-                StartCoroutine(UpgradeFour());
-            }
-            else
-            {
-                timesLeft[3] = 10.15f;
-                playerShootScript.shotForce -= 700;
+                b4 = false;
             }
         }
-        else
+
+        if (playerShootScript.shotID == 2)
         {
-            yield return new WaitForSecondsRealtime(0.01f);
-            StartCoroutine(UpgradeFour());
+            b3 = false;
+            upgrade3 = 0;
+        }
+
+        if (playerShootScript.shotID == 3)
+        {
+            b2 = false;
+            upgrade2 = 0;
         }
     }
 

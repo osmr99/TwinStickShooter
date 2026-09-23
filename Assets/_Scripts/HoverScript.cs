@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class HoverScript : MonoBehaviour, IPointerEnterHandler
+public class HoverScript : MonoBehaviour, IPointerEnterHandler, ISelectHandler
 {
     [SerializeField] AudioClip[] sounds;
     PlayerController playerController;
@@ -12,6 +12,12 @@ public class HoverScript : MonoBehaviour, IPointerEnterHandler
         playerController = FindAnyObjectByType<PlayerController>();
     }
     public void OnPointerEnter(PointerEventData eventData)
+    {
+        randNum = Random.Range(0, 2);
+        SoundManager.Instance.PlaySound3D(sounds[randNum], playerController.transform.position, 0.275f);
+    }
+
+    public void OnSelect(BaseEventData eventData)
     {
         randNum = Random.Range(0, 2);
         SoundManager.Instance.PlaySound3D(sounds[randNum], playerController.transform.position, 0.275f);

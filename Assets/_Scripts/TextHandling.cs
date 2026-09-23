@@ -8,6 +8,7 @@ public class TextHandling : MonoBehaviour
     GameManager gameManager;
     PowerupUI powerupUI;
     PlayerShootScript playerShootScript;
+    PlayerController playerController;
     int decision;
     float timeLeft;
     string[] preText = {"Speed+\n", "Large Shot\n", "Spread Shot\n", "Shot Speed+\n" };
@@ -20,6 +21,7 @@ public class TextHandling : MonoBehaviour
         powerupUI = FindAnyObjectByType<PowerupUI>();
         text = GetComponent<TMP_Text>();
         playerShootScript = FindAnyObjectByType<PlayerShootScript>();
+        playerController = FindAnyObjectByType<PlayerController>();
         decision = powerupUI.currentChoice;
         timeLeft = gameManager.powerupsDuration;
         StartCoroutine(StartUI());
@@ -60,99 +62,53 @@ public class TextHandling : MonoBehaviour
 
     IEnumerator UpgradeOne()
     {
-        if(Time.timeScale != 0)
+        yield return new WaitForSeconds(0.1f);
+        timeLeft -= 0.1f;
+        text.text = preText[0] + "(" + timeLeft.ToString("F1") + "s)";
+        if (timeLeft > 0)
         {
-            yield return new WaitForSecondsRealtime(0.1f);
+            StartCoroutine(UpgradeOne());
+        }
+        else
+        {
+            timeLeft = 0;
+            playerController.moveSpeed -= 2;
+            Destroy(gameObject, killTime);
+        }
+    }
+
+    IEnumerator UpgradeTwo()
+    {
+        if (playerShootScript.shotID == 2)
+        {
+            yield return new WaitForSeconds(0.1f);
             timeLeft -= 0.1f;
-            text.text = preText[0] + "(" + timeLeft.ToString("F1") + "s)";
+            text.text = preText[1] + "(" + timeLeft.ToString("F1") + "s)";
             if (timeLeft > 0)
             {
-                StartCoroutine(UpgradeOne());
+                StartCoroutine(UpgradeTwo());
             }
             else
             {
-                timeLeft = 0;
                 Destroy(gameObject, killTime);
             }
         }
         else
         {
-            yield return new WaitForSecondsRealtime(0.01f);
-            StartCoroutine(UpgradeOne());
-        }
-
-    }
-
-    IEnumerator UpgradeTwo()
-    {
-        if(Time.timeScale != 0)
-        {
-            if(playerShootScript.shotID == 2)
-            {
-                yield return new WaitForSecondsRealtime(0.1f);
-                timeLeft -= 0.1f;
-                text.text = preText[1] + "(" + timeLeft.ToString("F1") + "s)";
-                if (timeLeft > 0)
-                {
-                    StartCoroutine(UpgradeTwo());
-                }
-                else
-                {
-                    Destroy(gameObject, killTime);
-                }
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
-        }
-        else
-        {
-            yield return new WaitForSecondsRealtime(0.01f);
-            StartCoroutine(UpgradeTwo());
+            Destroy(gameObject);
         }
     }
 
     IEnumerator UpgradeThree()
     {
-        if(Time.timeScale != 0)
+        if (playerShootScript.shotID == 3)
         {
-            if (playerShootScript.shotID == 3)
-            {
-                yield return new WaitForSecondsRealtime(0.1f);
-                timeLeft -= 0.1f;
-                text.text = preText[2] + "(" + timeLeft.ToString("F1") + "s)";
-                if (timeLeft > 0)
-                {
-                    StartCoroutine(UpgradeThree());
-                }
-                else
-                {
-                    Destroy(gameObject, killTime);
-                }
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
-        }
-        else
-        {
-            yield return new WaitForSecondsRealtime(0.01f);
-            StartCoroutine(UpgradeThree());
-        }
-    }
-
-    IEnumerator UpgradeFour()
-    {
-        if(Time.timeScale != 0)
-        {
-            yield return new WaitForSecondsRealtime(0.1f);
+            yield return new WaitForSeconds(0.1f);
             timeLeft -= 0.1f;
-            text.text = preText[3] + "(" + timeLeft.ToString("F1") + "s)";
+            text.text = preText[2] + "(" + timeLeft.ToString("F1") + "s)";
             if (timeLeft > 0)
             {
-                StartCoroutine(UpgradeFour());
+                StartCoroutine(UpgradeThree());
             }
             else
             {
@@ -161,8 +117,23 @@ public class TextHandling : MonoBehaviour
         }
         else
         {
-            yield return new WaitForSecondsRealtime(0.01f);
+            Destroy(gameObject);
+        }
+    }
+
+    IEnumerator UpgradeFour()
+    {
+        yield return new WaitForSeconds(0.1f);
+        timeLeft -= 0.1f;
+        text.text = preText[3] + "(" + timeLeft.ToString("F1") + "s)";
+        if (timeLeft > 0)
+        {
             StartCoroutine(UpgradeFour());
+        }
+        else
+        {
+            playerShootScript.shotForce -= 350;
+            Destroy(gameObject, killTime);
         }
     }
 }

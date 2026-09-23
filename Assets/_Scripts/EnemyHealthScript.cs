@@ -17,15 +17,26 @@ public class EnemyHealthScript : MonoBehaviour
     public GameObject explosionEffect;
 
     GameManager gameManager;
+    PlayerController playerController;
+    bool isDead = false;
 
 
     private void Start()
     {
         gameManager = FindAnyObjectByType<GameManager>();
         playerShootScript = GameObject.FindAnyObjectByType<PlayerShootScript>();
+        playerController = FindAnyObjectByType<PlayerController>();
         foreach(MeshRenderer m in _mRender)
         {
             m.material = baseMat;
+        }
+    }
+
+    private void Update()
+    {
+        if(isDead)
+        {
+            EnemyDead();
         }
     }
 
@@ -42,7 +53,8 @@ public class EnemyHealthScript : MonoBehaviour
         }
         if(other.gameObject.tag == "Player")
         {
-            //Debug.Log("YESSSS");
+            if(playerController.canTakeDamage)
+                playerController.Damaged();
         }
     }
 
@@ -51,13 +63,7 @@ public class EnemyHealthScript : MonoBehaviour
         enemyHealth--;
         if(enemyHealth <= 0)
         {
-            GameManager.Instance._enemiesInPlay--;
-            GameManager.Instance.EnemyKillCount();
-            Instantiate(explosionEffect, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
-            SoundManager.Instance.PlaySound3D(gameManager.sounds[8], transform.position, 0.5f);
-            yield return new WaitForSeconds(0.025f);
-            HitStopManager.Instance.DoHitStop(0.3f, 0.4f);
-            Destroy(gameObject);
+            isDead = true;
         }
         else
         {
@@ -73,5 +79,15 @@ public class EnemyHealthScript : MonoBehaviour
                 m.material = baseMat;
             }
         }
+    }
+
+    void EnemyDead()
+    {
+        gameManager._enemiesInPlay--;
+        gameManager.EnemyKillCount();
+        Instantiate(explosionEffect, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
+        SoundManager.Instance.PlaySound3D(gameManager.sounds[8], transform.position, 0.5f);
+        HitStopManager.Instance.DoHitStop(0.3f, 0.4f);
+        Destroy(gameObject);
     }
 }
