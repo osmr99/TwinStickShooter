@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
     CharacterController cc;
 
     [Header("Player Controls")]
+    public int currentHealth;
+    public int maxHealth;
     public float moveSpeed = 4f;
     [SerializeField] private Vector2 moveInput;
     [SerializeField] private Vector2 aimInput;

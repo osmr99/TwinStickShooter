@@ -21,6 +21,9 @@ public class PlayerShootScript : MonoBehaviour
     public float shootSpeed = 0.2f;
     public bool canShoot;
 
+    [Header("Audio Clips")]
+    [SerializeField] AudioClip[] audioClips;
+
     private void Awake()
     {
         _ctrl = GetComponent<PlayerController>();
@@ -42,6 +45,9 @@ public class PlayerShootScript : MonoBehaviour
     {
         if(_inputs.Player.Shoot.IsPressed() && canShoot)
             StartCoroutine(PlayerShoot());
+
+        if (Time.timeScale == 0)
+            RumbleManager.Instance.RumblePulse(0.0f, 0.0f, 0.01f);
     }
 
     IEnumerator PlayerShoot()
@@ -55,17 +61,20 @@ public class PlayerShootScript : MonoBehaviour
                 _shot = Instantiate(baseBullet, bulletSpawnPoint.position,
                     bulletSpawnPoint.rotation) as Rigidbody;
                 _shot.AddForce(bulletSpawnPoint.forward * shotForce);
+                SoundManager.Instance.PlaySound3D(audioClips[0], transform.position, 0.4f);
                 break;
             case 2:
                 _shot = Instantiate(largeBullet, bulletSpawnPoint.position,
                     bulletSpawnPoint.rotation) as Rigidbody;
                 _shot.AddForce(bulletSpawnPoint.forward * shotForce * 0.75f);
+                SoundManager.Instance.PlaySound3D(audioClips[1], transform.position, 0.4f);
                 break;
             case 3:
                 float angleStep = totalSpreadAngle / spreadCount - 1;
                 float startAngle = -totalSpreadAngle / 2f;
+                SoundManager.Instance.PlaySound3D(audioClips[2], transform.position, 0.4f);
 
-                for(int i = 0; i < spreadCount; i++)
+                for (int i = 0; i < spreadCount; i++)
                 {
                     float _angle = startAngle + angleStep * i;
                     Quaternion _rotation = Quaternion.AngleAxis(_angle, Vector3.up);

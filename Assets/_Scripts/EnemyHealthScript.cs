@@ -16,9 +16,12 @@ public class EnemyHealthScript : MonoBehaviour
     [Header("Explosion Effect")]
     public GameObject explosionEffect;
 
+    GameManager gameManager;
+
 
     private void Start()
     {
+        gameManager = FindAnyObjectByType<GameManager>();
         playerShootScript = GameObject.FindAnyObjectByType<PlayerShootScript>();
         foreach(MeshRenderer m in _mRender)
         {
@@ -37,6 +40,10 @@ public class EnemyHealthScript : MonoBehaviour
         {
             StartCoroutine(TakeDamage());
         }
+        if(other.gameObject.tag == "Player")
+        {
+            //Debug.Log("YESSSS");
+        }
     }
 
     IEnumerator TakeDamage()
@@ -47,6 +54,7 @@ public class EnemyHealthScript : MonoBehaviour
             GameManager.Instance._enemiesInPlay--;
             GameManager.Instance.EnemyKillCount();
             Instantiate(explosionEffect, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
+            SoundManager.Instance.PlaySound3D(gameManager.sounds[8], transform.position, 0.5f);
             yield return new WaitForSeconds(0.025f);
             HitStopManager.Instance.DoHitStop(0.3f, 0.4f);
             Destroy(gameObject);
